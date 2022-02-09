@@ -93,7 +93,7 @@ class FlaskOIDC(Flask):
             token = self.auth_client.refresh_token(data["refresh_token"])
             # fixes 'missing nonce' which shouldn't happen in production:
             # session.pop("_keycloak_authlib_nonce_")
-            user = self.auth_client.handle_auth_token(token)
+            user = self.auth_client.handle_auth_token(token, self.config.get('USERINFO_MAPPING'))
             user_details_keys = self.config.get('USER_DETAILS_KEYS', '').split(',')
             user_details = {key: val for key, val in user.items()
                             if key in user_details_keys}
@@ -103,8 +103,8 @@ class FlaskOIDC(Flask):
         def logout():
             # ToDo: Think of if we should delete the session entity or not
             # if session.get("user"):
-            #     OAuth2Token.delete(name=_provider, user_id=session["user"]["__id"])
-            session.pop("user", None)
+            #     OAuth2Token.delete(name=_provider, user_id=session["user"]["id"])
+            session.pop("user")
             if self.config.get("ROLE") == "client":
                 return redirect(url_for("login"))    
             return make_response(jsonify({"message": "Logged out."}), 200)

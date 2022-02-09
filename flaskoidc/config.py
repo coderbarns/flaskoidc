@@ -43,7 +43,6 @@ class BaseConfig(object):
     # Access type options for Keycloak: public/confidential/bearer-only
     ACCESS_TYPE = os.environ.get("FLASK_OIDC_ACCESS_TYPE", "confidential")
     # Userinfo keys to return in user object
-    USER_DETAILS_KEYS = os.environ.get("FLASK_OIDC_USER_DETAILS_KEYS", "preferred_username,email,name,given_name,family_name,email_verified")
 
     OIDC_PROVIDER_PARAMETERS_FILE = os.environ.get(
         "FLASK_OIDC_PROVIDER_ADDITIONAL_PARAMETERS_FILE_PATH", None
@@ -65,3 +64,13 @@ class BaseConfig(object):
     INVALID_TOKEN_MESSAGE = "The access token used is invalid."
     NO_TOKEN_MESSAGE = "Use of resource server requires that you pass an access token."
     EXPIRED_TOKEN_MESSAGE = "The access token has expired."
+
+    USERINFO_MAPPING = {
+        "sub": "id",
+        "preferred_username": "username",
+        "email": "email",
+        "name": "name",
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "email_verified": "email_verified",
+    }

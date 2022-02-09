@@ -27,7 +27,7 @@ class FlaskAuthClient(FlaskRemoteApp):
             return token
 
         if session.get("user"):
-            token = OAuth2Token.get(name=self.name, user_id=session["user"]["__id"])
+            token = OAuth2Token.get(name=self.name, user_id=session["user"]["id"])
             if not token:
                 raise LoginRequiredError("")
         else:
@@ -63,7 +63,7 @@ class FlaskAuthClient(FlaskRemoteApp):
                 raise LoginRequiredError('Refresh token is expired.')
             return new_token
 
-    def handle_auth_token(self, token, user_id_field="sub"):
+    def handle_auth_token(self, token, userinfo_mapping=None):
         """Convenience method used post-authentication when an auth token is received
         from the auth provider. Parses token, saves it in the database, and initializes
         user session.
@@ -71,19 +71,15 @@ class FlaskAuthClient(FlaskRemoteApp):
         LOGGER.debug(f"Token Info: {token}")
         user = self.parse_id_token(token)
         LOGGER.debug(f"User Info: {user}")
-        user_id = user.get(user_id_field)
-        if not user_id:
-            raise BadRequest(
-                "Make sure to set the proper 'FLASK_OIDC_USER_ID_FIELD' env variable "
-                f"to match with your OIDC Provider. '{user_id_field}' is not present in the "
-                f"response from OIDC Provider. Available Keys are: ({', '.join(user.keys())})"
-            )
-        OAuth2Token.save(name=self.name, user_id=user_id, **token)
+        if userinfo_mapping:
+            user = {user_key: user.get(userinfo_key)
+                    for userinfo_key, user_key in userinfo_mapping.items()}
+        OAuth2Token.save(name=self.name, user_id=user["id"], **token)
         session["user"] = user
-        session["user"]["__id"] = user_id
         session.permanent = True
         return user
 
+    @staticmethod
     def parse_access_token():
         if "Authorization" in request.headers and \
                 request.headers["Authorization"].startswith("Bearer "):

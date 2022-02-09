@@ -14,17 +14,17 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-__version__ = "1.0.6"
+__version__ = "1.0.2"
 
 setup(
-    name="flaskoidc",
+    name="hey-auth",
     version=__version__,
     description="Flask wrapper with pre-configured OAuth2 and OIDC support",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/verdan/flaskoidc.git",
-    author="Verdan Mahmood",
-    author_email="verdan.mahmood@gmail.com",
+    url="https://github.com/coderbarns/flaskoidc.git",
+    author="Aarni Alasaarela",
+    author_email="coderbarns@gmail.com",
     packages=find_packages(exclude=["tests*"]),
     include_package_data=True,
     dependency_links=[],
