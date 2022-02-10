@@ -34,7 +34,7 @@ class FlaskAuthClient(FlaskRemoteApp):
             access_token = self.parse_access_token()
             if not access_token:
                 raise LoginRequiredError(
-                    "No user session active or access token provided.")
+                    "No active user session and no access token provided.")
             token = OAuth2Token.get(access_token=access_token)
             if not token:
                 raise LoginRequiredError("Access token is invalid.")
