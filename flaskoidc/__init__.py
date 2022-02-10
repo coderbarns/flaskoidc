@@ -87,17 +87,21 @@ class FlaskOIDC(Flask):
                 LOGGER.exception(ex)
                 raise ex
 
-        @self.route("/token", methods=["POST"])
+        @self.route("/token", methods=["GET", "POST"])
         def token():
-            data = request.form.to_dict()
-            token = self.auth_client.refresh_token(data["refresh_token"])
-            # fixes 'missing nonce' which shouldn't happen in production:
-            # session.pop("_keycloak_authlib_nonce_")
-            user = self.auth_client.handle_auth_token(token, self.config.get('USERINFO_MAPPING'))
-            user_details_keys = self.config.get('USER_DETAILS_KEYS', '').split(',')
-            user_details = {key: val for key, val in user.items()
-                            if key in user_details_keys}
-            return make_response(jsonify(user_details), 200)
+            if request.method == "GET":
+                access_token = self.auth_client.token.access_token
+                return make_response(jsonify({"access_token": access_token}), 200)
+            elif request.method == "POST":
+                data = request.form.to_dict()
+                token = self.auth_client.refresh_token(data["refresh_token"])
+                # fixes 'missing nonce' which shouldn't happen in production:
+                # session.pop("_keycloak_authlib_nonce_")
+                user = self.auth_client.handle_auth_token(token, self.config.get('USERINFO_MAPPING'))
+                user_details_keys = self.config.get('USER_DETAILS_KEYS', '').split(',')
+                user_details = {key: val for key, val in user.items()
+                                if key in user_details_keys}
+                return make_response(jsonify(user_details), 200)
 
         @self.route("/logout")
         def logout():
